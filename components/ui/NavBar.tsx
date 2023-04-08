@@ -1,12 +1,18 @@
 import { FC } from 'react'
 import { AppBar, IconButton, Toolbar, Typography } from '@mui/material'
 import { MenuOutlined } from '@mui/icons-material'
+import { useUi } from '@/hooks';
 
 export const NavBar: FC = () => {
+
+  const { handleOpenSidebar } = useUi();
+
   return (
     <AppBar position='sticky'>
       <Toolbar>
-        <IconButton>
+        <IconButton
+          onClick={ handleOpenSidebar }
+        >
           <MenuOutlined />
         </IconButton>
 

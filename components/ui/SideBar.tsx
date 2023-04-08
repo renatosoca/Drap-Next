@@ -1,14 +1,18 @@
 import { Box, Divider, Drawer, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import { InboxOutlined, MailOutlined } from '@mui/icons-material';
+import { useUi } from '@/hooks';
 
 const menuItems: string[] = ['Inbox', 'Starred', 'Send email', 'Drafts']
 
 export const SideBar = () => {
+
+  const { sidebarOpen, handleCloseSidebar } = useUi();
+  
   return (
     <Drawer
       anchor='left'
-      open={true}
-      onClose={() => console.log('cerrando')}
+      open={sidebarOpen}
+      onClose={ handleCloseSidebar }
     >
       <Box sx={{ width: '15rem'}}>
         <Box sx={{ padding: '.5rem 1rem'}}>
