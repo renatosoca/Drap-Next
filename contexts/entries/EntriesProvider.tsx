@@ -1,6 +1,7 @@
 import { Entry } from '@/interfaces';
-import { FC, ReactNode, useReducer } from 'react';
+import { FC, ReactNode, useEffect, useReducer } from 'react';
 import { EntriesContext, EntriesReducer } from './';
+import axios from 'axios';
 
 export interface Props {
   children: ReactNode;
@@ -10,47 +11,33 @@ export interface EntriesState {
 }
 
 const Entries_INITIAL_STATE: EntriesState = {
-  entries: [
-    {
-      _id: Math.random().toString(36).substring(2, 9),
-      description: 'Pending Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.',
-      status: 'pending',
-      createdAt: Date.now(),
-    },
-    
-    {
-      _id: Math.random().toString(36).substring(2, 9),
-      description: 'In Progress Lorem ipsum elit. Quisquam, quod.',
-      status: 'in-progress',
-      createdAt: Date.now() - 1000000,
-    },
-    
-    {
-      _id: Math.random().toString(36).substring(2, 9),
-      description: 'Completed Lorem ipsum quod.',
-      status: 'completed',
-      createdAt: Date.now() - 100000,
-    },
-  ],
+  entries: [],
 }
 
 export const EntriesProvider: FC<Props> = ({ children }) => {
 
   const [ state, dispatch ] = useReducer( EntriesReducer, Entries_INITIAL_STATE);
 
-  const handleAddNewEntry = (description: string) => {
-    const newEntry: Entry = {
-      _id: Math.random().toString(36).substring(2, 9),
-      description,
-      createdAt: Date.now(),
-      status: 'pending',
-    }
-    dispatch({ type: '[Entry] - Add-Entry', payload: newEntry });
+  const handleAddNewEntry = async (description: string) => {
+    const { data } = await axios.post<Entry>('http://localhost:3000/api/entries', { description });
+    dispatch({ type: '[Entry] - Add-Entry', payload: data });
   }
 
-  const handleUpdateEntry = (payload: Entry) => {
-    dispatch({ type: '[Entry] - Updated-Entry', payload });
+  const handleUpdateEntry = async (entry: Entry) => {
+    const { data } = await axios.put<Entry>(`http://localhost:3000/api/entries/${entry._id}`, entry);
+
+    dispatch({ type: '[Entry] - Updated-Entry', payload: data });
   }
+
+  const handleRefreshEntries = async () => {
+    const { data } = await axios.get<Entry[]>('http://localhost:3000/api/entries');
+    dispatch({ type: '[Entry] - Refresh-Entries', payload: data });
+  }
+
+  useEffect(() => {
+    handleRefreshEntries();
+  }, [])
+  
   
   return (
     <EntriesContext.Provider value={{
